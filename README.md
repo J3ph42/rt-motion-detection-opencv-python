@@ -2,9 +2,7 @@
 
 The motion detector presented here is developed to be noise-tolerant &ndash; webcam noise, light noise, athmosphere turbulence noise, different kinds of tremblings can be successfully handled.
 
-You can download the video clip which is used in the demo at: https://box.bw-sw.com/f/c629c692d5c04b7caac6/?dl
-
-Place it in the `tmp` directory.
+This demo is modified to record from a webcam.
 
 Algorithm demonstration video screencast can be found at: https://youtu.be/FCme11alEmc
 
@@ -102,6 +100,7 @@ if __name__ == "__main__":
 ## Performance
 
 The performance depends **greatly** from the values of following detector parameters:
+A crude FPS display is included to give you an idea of the performance impact of your settings.
 
 * Background substraction scale [`bg_subs_scale_percent`] (default 1/4), which leads to 480x230 frame for initial 1480x920 frame.
 * Size of the frame which is used to search for bounding boxes [`pixel_compression_ratio`] (default 1/10), which leads to 148x92 for initial 1480x920 frame.
