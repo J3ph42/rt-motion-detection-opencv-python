@@ -2,10 +2,12 @@ import cv2
 import numpy as np
 
 from time import time
+import datetime
 from detector import MotionDetector
 from packer import pack_images
 from numba import jit
-
+from picamera.array import PiRGBArray
+from picamera import PiCamera
 
 @jit(nopython=True)
 def filter_fun(b):
@@ -14,9 +16,12 @@ def filter_fun(b):
 
 if __name__ == "__main__":
 
-    cap = cv2.VideoCapture('tmp/helmets-v1-55.mp4')
-    # cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-    # cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+    cap = cv2.VideoCapture(-1)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 960)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 540)
+    # cap = PiCamera()
+    # cap.resolution = (1280, 720)
+    # cap.framerate = 30
 
     detector = MotionDetector(bg_history=10,
                               bg_skip_frames=1,
@@ -35,6 +40,9 @@ if __name__ == "__main__":
     res = []
     fc = dict()
     ctr = 0
+    # used to record the time when we processed last frame
+    prev_frame_time = 0
+
     while True:
         # Capture frame-by-frame
         ret, frame = cap.read()
@@ -85,9 +93,37 @@ if __name__ == "__main__":
         if ctr % 100 == 0:
             print("Total Frames: ", ctr, "Packed Frames:", fc)
 
+        # time when we finish processing for this frame
+
+        # Calculating the fps
+
+        # fps will be number of frame processed in given time frame
+        # since their will be most of time error of 0.001 second
+        # we will be subtracting it to get more accurate result
+        fps = 1 / (begin - prev_frame_time)
+        prev_frame_time = begin
+
+        # converting the fps into integer
+        fps = int(fps)
+
+        # converting the fps to string so that we can display it on frame
+        # by using putText function
+
+        display_text = str(fps)
+
+        # Use putText() method for
+        # inserting text on video
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        cv2.putText(frame,
+                    display_text,
+                    (20, 50),
+                    font, 1,
+                    (0, 255, 255),
+                    2,
+                    cv2.LINE_4)
         cv2.imshow('last_frame', frame)
-        cv2.imshow('detect_frame', detector.detection_boxed)
-        cv2.imshow('diff_frame', detector.color_movement)
+        #cv2.imshow('detect_frame', detector.detection_boxed)
+        #cv2.imshow('diff_frame', detector.color_movement)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
